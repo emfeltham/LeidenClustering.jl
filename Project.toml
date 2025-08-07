@@ -1,0 +1,4 @@
+name = "LeidenClustering"
+uuid = "945644f9-d231-49e7-b336-a4cd00f5784c"
+authors = ["Eric Martin Feltham <eric.feltham@aya.yale.edu>"]
+version = "0.1.0"
