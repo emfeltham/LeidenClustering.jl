@@ -4,6 +4,10 @@ using Graphs
 using SparseArrays
 using Random
 
+# example
+using DataFrames: DataFrame
+import CSV
+
 include("structs.jl")
 
 include("connected.jl")
@@ -13,6 +17,8 @@ include("mechanics.jl")
 include("leiden.jl")
 include("show.jl")
 include("testing.jl")
+
+
 
 export
     make_simplegraph,

@@ -9,15 +9,7 @@ using LeidenClustering
 g = make_simplegraph()
 test_leiden(g)
 
-begin # karate club data
-    kn = CSV.read("data/karate.csv", DataFrame);
-    n = sort(unique(vcat(kn.ego, kn.alter))) |> length;
-
-    karate = SimpleGraph(n);
-    for (a, b) in zip(kn.ego, kn.alter)
-        add_edge!(karate, a, b)
-    end
-end
+karate = karateclub_graph();
 
 test_leiden(karate)
 

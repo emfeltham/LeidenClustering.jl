@@ -13,6 +13,17 @@ function make_simplegraph()
     return g
 end
 
+function karateclub_graph()
+    kn = CSV.read("data/karate.csv", DataFrame);
+    n = sort(unique(vcat(kn.ego, kn.alter))) |> length;
+
+    karate = SimpleGraph(n);
+    for (a, b) in zip(kn.ego, kn.alter)
+        add_edge!(karate, a, b)
+    end
+    return karate
+end
+
 # Sanity check function
 function sanity_check(state::LeidenState)
     """
