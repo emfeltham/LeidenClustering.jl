@@ -22,7 +22,7 @@ rename!(
     :julia_time_ms => :t_julia_ms, :r_time_ms => :t_r_ms)
 )
 
-CSV.write("data/_summary_combined.csv", combined)
+CSV.write("test/_summary_combined.csv", combined)
 println("Wrote combined summary to data/_summary_combined.csv")
 combined
 

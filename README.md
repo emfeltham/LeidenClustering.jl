@@ -1,5 +1,6 @@
 # LeidenClustering.jl
-Leiden clustering on graphs.
+
+Leiden clustering on graphs. See below for the development state of this package.
 
 **LeidenClustering.jl** is a pure Julia implementation of the [Leiden community detection algorithm](https://www.nature.com/articles/s41598-019-41695-z) for graphs.
 
@@ -86,7 +87,7 @@ Arguments:
 * `show_communities(state)` — print summary of each community.
 * `sanity_check(state)` — check for common consistency errors.
 
-## Example: Resolution sweep
+## Example: resolution sweep
 
 ```julia
 g = Graphs.karateclub_graph()
@@ -103,6 +104,13 @@ Note the refinement options on clustering.
 
 * **Simple refinement** (`use_true_leiden=false`) only ensures communities are connected — effectively Louvain with a connectivity fix.
 * **True refinement** (`use_true_leiden=true`) runs intra-community local moving to split communities into *well-connected* subcommunities before aggregation, following Traag et al. (2019).
+
+## State of development
+
+- This package is new and unregistered
+- See the tests for details on accuracy
+- Tests features benchmarking against the R/igraph implementation using simulated
+graphs  ("_summary_combined.csv") -- the results indicate that this package identifies communities correctly.
 
 ## References
 
