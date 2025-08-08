@@ -14,12 +14,11 @@ include("connected.jl")
 include("local_moving.jl")
 
 include("mechanics.jl")
+include("refine.jl")
 include("leiden.jl")
+export leiden
 include("show.jl")
 include("testing.jl")
-
-
-
 export
     make_simplegraph,
     test_leiden,

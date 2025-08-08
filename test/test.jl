@@ -9,7 +9,7 @@ using LeidenClustering
 g = make_simplegraph()
 test_leiden(g)
 
-karate = karateclub_graph();
+karate = LeidenClustering.karateclub_graph();
 
 test_leiden(karate)
 

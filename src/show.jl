@@ -1,7 +1,9 @@
 # show.jl
 
+import Base.show
+
 # Function to show detailed community info
-function show_communities(state::LeidenState)
+function Base.show(state::LeidenState)
     println("\nCommunity Details:")
     for (comm, nodes) in state.partition.community_nodes
         nodes_list = sort(collect(nodes))
