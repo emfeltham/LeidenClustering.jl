@@ -2,7 +2,8 @@
 Leiden clustering on graphs.
 
 **LeidenClustering.jl** is a pure Julia implementation of the [Leiden community detection algorithm](https://www.nature.com/articles/s41598-019-41695-z) for graphs.
-It improves upon the Louvain method by ensuring that all communities are *well-connected*, avoiding the disconnected partitions that Louvain can produce.
+
+The Liden method upon Louvain clustering by ensuring that all communities are *well-connected*, avoiding the disconnected partitions that Louvain can produce.
 
 The package supports weighted and unweighted graphs, arbitrary resolution parameters, and both the Louvain-like refinement and full Leiden refinement.
 
