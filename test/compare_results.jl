@@ -17,7 +17,7 @@ r = CSV.read("test/r/_summary_r.csv", DataFrame)
 combined = innerjoin(j, r, on=[:name, :n, :m], makeunique=true)
 combined.dQ = combined.modularity - combined.mod
 rename!(
-    combined, Dict(:modularity => :Q_julia, :modularity => :Q_r,
+    combined, Dict(:mod => :Q_r, :modularity => :Q_julia,
     :communities => :k_julia, :communities_1 => :k_r,
     :julia_time_ms => :t_julia_ms, :r_time_ms => :t_r_ms)
 )
