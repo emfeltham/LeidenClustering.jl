@@ -5,9 +5,43 @@
            tol::Float64 = 1e-6, seed::Union{Int, Nothing} = nothing, 
            use_refinement::Bool = true, use_true_leiden::Bool = false)
 
-Full Leiden algorithm with aggregation.
-- use_refinement: If true, applies refinement phase (connectivity check at minimum)
-- use_true_leiden: If true, uses full Leiden refinement (well-connectedness), otherwise just connectivity
+Full Leiden algorithm with aggregation for community detection.
+
+# Arguments
+- `g::AbstractGraph`: The input graph. Can be:
+  - `SimpleGraph` for unweighted graphs (all edges have weight 1.0)
+  - `SimpleWeightedGraph` for weighted graphs (weights automatically extracted)
+- `resolution::Float64 = 1.0`: Resolution parameter (γ) for modularity. Higher values produce more communities.
+- `max_iterations::Int = 100`: Maximum number of aggregation levels.
+- `tol::Float64 = 1e-6`: Convergence tolerance for modularity improvement.
+- `seed::Union{Int, Nothing} = nothing`: Random seed for reproducibility.
+- `use_refinement::Bool = true`: If true, applies refinement phase (connectivity check at minimum).
+- `use_true_leiden::Bool = false`: If true, uses full Leiden refinement (well-connectedness), 
+  otherwise just ensures connectivity.
+
+# Returns
+- `LeidenState`: Contains the final partition, communities, and modularity score.
+
+# Notes
+- Automatically detects and uses edge weights from `SimpleWeightedGraph` types.
+- Edge weights must be non-negative (negative weights will raise an error).
+- Zero-weight edges are treated as non-edges.
+- The algorithm iteratively aggregates communities until convergence or `max_iterations` is reached.
+
+# Examples
+```julia
+# Unweighted graph
+g = SimpleGraph(100)
+# ... add edges ...
+state = leiden(g, resolution=1.0)
+
+# Weighted graph  
+using SimpleWeightedGraphs
+g = SimpleWeightedGraph(100)
+add_edge!(g, 1, 2, 5.0)  # edge with weight 5.0
+# ... add more weighted edges ...
+state = leiden(g, resolution=1.5)  # higher resolution for finer communities
+```
 """
 function leiden(
     g::AbstractGraph; resolution::Float64 = 1.0,

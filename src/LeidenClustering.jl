@@ -1,6 +1,6 @@
 module LeidenClustering
 
-using Graphs
+using Graphs, SimpleWeightedGraphs
 using SparseArrays
 using Random
 

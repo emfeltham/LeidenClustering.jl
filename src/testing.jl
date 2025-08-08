@@ -13,6 +13,35 @@ function make_simplegraph()
     return g
 end
 
+"""
+    make_weighted_simplegraph()
+
+Create a simple weighted test graph with community structure.
+Requires SimpleWeightedGraphs to be loaded.
+"""
+function make_weighted_simplegraph()
+    if !isdefined(Main, :SimpleWeightedGraph)
+        error("SimpleWeightedGraphs package must be loaded to create weighted graphs")
+    end
+    
+    g = Main.SimpleWeightedGraph(6)
+    
+    # Community 1: nodes 1,2,3 with strong internal connections
+    add_edge!(g, 1, 2, 5.0)
+    add_edge!(g, 1, 3, 5.0)
+    add_edge!(g, 2, 3, 5.0)
+    
+    # Community 2: nodes 4,5,6 with strong internal connections
+    add_edge!(g, 4, 5, 5.0)
+    add_edge!(g, 4, 6, 5.0)
+    add_edge!(g, 5, 6, 5.0)
+    
+    # Weak bridge between communities
+    add_edge!(g, 3, 4, 0.1)
+    
+    return g
+end
+
 function karateclub_graph()
     kn = CSV.read("data/karate.csv", DataFrame);
     n = sort(unique(vcat(kn.src, kn.dst))) |> length;
@@ -134,4 +163,82 @@ function verify_modularity(state::LeidenState)
     println("  Match: $(abs(state.partition.modularity - Q) < 1e-6)")
     
     return Q
+end
+
+
+"""
+    test_weighted_leiden()
+
+Test Leiden algorithm on weighted graphs.
+"""
+function test_weighted_leiden()
+    if !isdefined(Main, :SimpleWeightedGraph)
+        println("SimpleWeightedGraphs not loaded, skipping weighted tests")
+        return nothing
+    end
+    
+    println("\nTesting Weighted Leiden Algorithm")
+    println("="^50)
+    
+    # Create weighted graph
+    g_weighted = make_weighted_simplegraph()
+    println("Weighted graph: $(nv(g_weighted)) nodes, $(ne(g_weighted)) edges")
+    
+    # Test with weighted graph
+    println("\n1. Weighted graph clustering:")
+    state_weighted = leiden(g_weighted, resolution=1.0, seed=42)
+    println("  Communities: $(length(state_weighted.partition.community_nodes))")
+    println("  Modularity: $(round(state_weighted.partition.modularity, digits=4))")
+    
+    # Create unweighted version of the same topology
+    g_unweighted = SimpleGraph(6)
+    for e in edges(g_weighted)
+        add_edge!(g_unweighted, src(e), dst(e))
+    end
+    
+    println("\n2. Unweighted graph clustering (same topology):")
+    state_unweighted = leiden(g_unweighted, resolution=1.0, seed=42)
+    println("  Communities: $(length(state_unweighted.partition.community_nodes))")
+    println("  Modularity: $(round(state_unweighted.partition.modularity, digits=4))")
+    
+    # The weighted version should separate communities better due to weak bridge
+    println("\n3. Comparison:")
+    println("  Weighted communities should separate at weak bridge (0.1 weight)")
+    println("  Unweighted treats all edges equally (weight 1.0)")
+    
+    # Show the actual communities
+    println("\n4. Community assignments:")
+    println("  Weighted: $(state_weighted.partition.membership)")
+    println("  Unweighted: $(state_unweighted.partition.membership)")
+    
+    return state_weighted, state_unweighted
+end
+
+"""
+    test_weight_validation()
+
+Test that negative weights are properly rejected.
+"""
+function test_weight_validation()
+    println("\nTesting Weight Validation")
+    println("="^50)
+    
+    g = SimpleGraph(3)
+    add_edge!(g, 1, 2)
+    add_edge!(g, 2, 3)
+    
+    # Create weight matrix with negative weight
+    weights = sparse([1, 2, 2, 3], [2, 1, 3, 2], [1.0, 1.0, -1.0, -1.0], 3, 3)
+    
+    try
+        state = initialize_state(g, weights=weights)
+        println("ERROR: Should have rejected negative weights!")
+    catch e
+        if isa(e, ArgumentError)
+            println("✓ Correctly rejected negative weights")
+            println("  Error message: $(e.msg)")
+        else
+            println("ERROR: Wrong exception type: $(typeof(e))")
+        end
+    end
 end

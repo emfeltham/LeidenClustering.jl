@@ -21,13 +21,25 @@ end
     initialize_state(g::AbstractGraph; resolution::Float64 = 1.0, weights::Union{Nothing, SparseMatrixCSC{Float64}} = nothing)
 
 Initialize the Leiden algorithm state.
+Automatically detects and uses weights from SimpleWeightedGraph types.
 """
 function initialize_state(g::AbstractGraph; resolution::Float64 = 1.0, weights::Union{Nothing, SparseMatrixCSC{Float64}} = nothing)
     n = nv(g)
     
-    # Create weight matrix (default to 1.0 for unweighted graphs)
+    # Create weight matrix - check for SimpleWeightedGraph
     if weights === nothing
-        weights = sparse(Float64.(adjacency_matrix(g)))
+        if isdefined(Main, :SimpleWeightedGraph) && g isa Main.SimpleWeightedGraph
+            weights = SparseMatrixCSC(LightGraphs.weights(g))  # Get weights from the graph
+        elseif isdefined(Main, :SimpleWeightedDiGraph) && g isa Main.SimpleWeightedDiGraph
+            weights = SparseMatrixCSC(LightGraphs.weights(g))  # Get weights from the graph
+        else
+            weights = sparse(Float64.(adjacency_matrix(g)))  # Default to 1.0 for unweighted
+        end
+    end
+    
+    # Validate weights (check for negative values)
+    if any(x -> x < 0, nonzeros(weights))
+        throw(ArgumentError("Negative edge weights are not supported in modularity optimization"))
     end
     
     # Calculate node degrees (sum of incident edge weights)
@@ -222,19 +234,16 @@ end
     aggregate_graph(state::LeidenState)
 
 Phase 3: Create super-graph where each community becomes a node.
-Returns new graph, weights matrix, and mapping from new nodes to old communities.
+Returns new graph and weights matrix.
+If SimpleWeightedGraphs is available, returns a SimpleWeightedGraph.
 """
 function aggregate_graph(state::LeidenState)
     comms = sort(collect(keys(state.partition.community_nodes)))
     num_comms = length(comms)
-        
-    # Create new graph
-    new_graph = SimpleGraph(num_comms)
     
-    # Create weight matrix for new graph
-    new_weights = sparse(zeros(num_comms, num_comms))
+    # Calculate weights between communities first
+    comm_weights = zeros(num_comms, num_comms)
     
-    # Calculate weights between communities
     for i in 1:length(comms)
         for j in i:length(comms)
             comm_i = comms[i]
@@ -254,19 +263,50 @@ function aggregate_graph(state::LeidenState)
                         end
                     end
                 end
-                
-                # Add edge to new graph if there's a connection
-                if weight > 0
-                    add_edge!(new_graph, i, j)
-                end
             end
             
             # Set weights in matrix (symmetric)
             if weight > 0
-                new_weights[i, j] = weight
-                new_weights[j, i] = weight
+                comm_weights[i, j] = weight
+                comm_weights[j, i] = weight
             end
         end
+    end
+    
+    # Create the appropriate graph type based on what's available
+    if isdefined(Main, :SimpleWeightedGraph)
+        # Create a SimpleWeightedGraph
+        new_graph = Main.SimpleWeightedGraph(num_comms)
+        
+        for i in 1:num_comms
+            for j in i:num_comms
+                if comm_weights[i, j] > 0
+                    if i == j
+                        # Add self-loop with the weight
+                        add_edge!(new_graph, i, j, comm_weights[i, j])
+                    else
+                        # Add edge with weight (only add once for undirected)
+                        add_edge!(new_graph, i, j, comm_weights[i, j])
+                    end
+                end
+            end
+        end
+        
+        # Return the graph and its weight matrix
+        new_weights = sparse(comm_weights)
+    else
+        # Fallback to SimpleGraph if SimpleWeightedGraphs not available
+        new_graph = SimpleGraph(num_comms)
+        
+        for i in 1:num_comms
+            for j in i:num_comms
+                if i != j && comm_weights[i, j] > 0
+                    add_edge!(new_graph, i, j)
+                end
+            end
+        end
+        
+        new_weights = sparse(comm_weights)
     end
     
     return new_graph, new_weights
