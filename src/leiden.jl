@@ -67,7 +67,7 @@ function leiden(
     while level < max_iterations
         level += 1
 
-        state = initialize_state(current_graph, resolution=resolution, weights=current_weights)
+        state = initialize_state(current_graph, resolution=resolution, wgt=current_weights)
         last_state = state
 
         # Phase 1

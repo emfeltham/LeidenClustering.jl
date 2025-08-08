@@ -23,33 +23,33 @@ end
 Initialize the Leiden algorithm state.
 Automatically detects and uses weights from SimpleWeightedGraph types.
 """
-function initialize_state(g::AbstractGraph; resolution::Float64 = 1.0, weights::Union{Nothing, SparseMatrixCSC{Float64}} = nothing)
+function initialize_state(g::AbstractGraph; resolution::Float64 = 1.0, wgt::Union{Nothing, SparseMatrixCSC{Float64}} = nothing)
     n = nv(g)
     
     # Create weight matrix - check for SimpleWeightedGraph
-    if weights === nothing
+    if wgt === nothing
         if isdefined(Main, :SimpleWeightedGraph) && g isa Main.SimpleWeightedGraph
-            weights = SparseMatrixCSC(LightGraphs.weights(g))  # Get weights from the graph
+            wgt = weights(g)  # Get weights from the graph
         elseif isdefined(Main, :SimpleWeightedDiGraph) && g isa Main.SimpleWeightedDiGraph
-            weights = SparseMatrixCSC(LightGraphs.weights(g))  # Get weights from the graph
+            wgt = weights(g)  # Get weights from the graph
         else
-            weights = sparse(Float64.(adjacency_matrix(g)))  # Default to 1.0 for unweighted
+            wgt = sparse(Float64.(adjacency_matrix(g)))  # Default to 1.0 for unweighted
         end
     end
     
     # Validate weights (check for negative values)
-    if any(x -> x < 0, nonzeros(weights))
+    if any(x -> x < 0, nonzeros(wgt))
         throw(ArgumentError("Negative edge weights are not supported in modularity optimization"))
     end
     
     # Calculate node degrees (sum of incident edge weights)
-    node_degrees = vec(sum(weights, dims=2))
+    node_degrees = vec(sum(wgt, dims=2))
     
     # Total weight is sum of all edges (counting each edge once)
-    total_weight = sum(weights) / 2.0
+    total_weight = sum(wgt) / 2.0
     
     # Initialize partition
-    partition = initialize_partition(g, weights, resolution)
+    partition = initialize_partition(g, wgt, resolution)
     
     # Initialize community weights
     community_weights_in = Dict{Int, Float64}()
@@ -57,12 +57,12 @@ function initialize_state(g::AbstractGraph; resolution::Float64 = 1.0, weights::
     
     for i in 1:n
         # Self-loops contribute to internal weight
-        community_weights_in[i] = weights[i, i] / 2.0
+        community_weights_in[i] = wgt[i, i] / 2.0
         community_weights_tot[i] = node_degrees[i]
     end
     
     state = LeidenState(
-        g, weights, node_degrees, total_weight,
+        g, wgt, node_degrees, total_weight,
         partition, community_weights_in, community_weights_tot
     )
     
