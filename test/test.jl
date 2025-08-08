@@ -33,13 +33,5 @@ Modularity: 0.4197896
 
 #### weighted
 
-using Graphs, SimpleWeightedGraphs
-using LeidenClustering: test_weighted_leiden, make_weighted_simplegraph
-
-g = make_weighted_simplegraph()
-
-weights(g)
 
 test_weighted_leiden()
-
-state_weighted = leiden(g_weighted, resolution=1.0, seed=42)
