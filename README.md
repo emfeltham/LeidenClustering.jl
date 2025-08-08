@@ -111,6 +111,7 @@ Note the refinement options on clustering.
 - See the tests for details on accuracy
 - Tests features benchmarking against the R/igraph implementation using simulated
 graphs  ("_summary_combined.csv") -- the results indicate that this package identifies communities correctly.
+- The code is not particularly optimized, and it currently performs significantly slower than R/igraph.
 
 ## References
 
