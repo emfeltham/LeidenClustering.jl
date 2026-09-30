@@ -24,4 +24,8 @@ makedocs(;
     warnonly=false,
 )
 
-deploydocs(; repo="github.com/emfeltham/LeidenClustering.jl.git", devbranch="main")
+deploydocs(;
+    repo="github.com/emfeltham/LeidenClustering.jl.git",
+    devbranch="main",
+    push_preview=true,
+)

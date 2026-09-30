@@ -2,6 +2,25 @@
 
 Internal reminders; not user documentation (that lives in `docs/` and `README.md`).
 
+## CI, docs and badges
+
+Workflows in `.github/workflows/` (from the package template): `CI.yml` (tests on Julia 1.10, the current release
+and prerelease on Linux; the release also on macOS/aarch64 and Windows; prerelease may fail; coverage uploaded to
+Codecov), `Documentation.yml` (builds the docs on every push/PR, deploys `dev` from `main` and versioned docs from
+tags), `TagBot.yml` and `CompatHelper.yml`. The README badges point at them. Do not overwrite these files
+without looking at them first (`git diff .github`).
+
+One-time setup on GitHub; the workflows have not run yet, so the badges show "no status" until they do:
+
+- [ ] **Pages:** Settings -> Pages -> deploy from branch `gh-pages` (created by the first docs run on `main`).
+- [ ] **Codecov:** enable the repo at codecov.io and add its upload token as the Actions secret `CODECOV_TOKEN`
+      (`fail_ci_if_error: false`, so a missing token only leaves the coverage badge empty).
+- [ ] **Docs deploy key (optional):** `Documentation.yml` uses `GITHUB_TOKEN`, and also `DOCUMENTER_KEY` if set.
+- [ ] **Docs badge:** it links to `dev`. After the first `vX.Y.Z` release add a `stable` badge:
+      `https://img.shields.io/badge/docs-stable-blue.svg` -> `https://emfeltham.github.io/LeidenClustering.jl/stable/`.
+- [ ] **TagBot/CompatHelper** are only useful once the package is registered in the General registry.
+- The docs job uses Julia `1` because `docs/Project.toml` relies on `[sources]` (needs >= 1.11).
+
 ## Licensing
 
 The package is **GPL-3.0-or-later** (`LICENSE`), not MIT, because it is derived from igraph's C core

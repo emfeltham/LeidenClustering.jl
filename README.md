@@ -1,5 +1,11 @@
 # LeidenClustering.jl
 
+[![Docs (dev)](https://img.shields.io/badge/docs-dev-blue.svg)](https://emfeltham.github.io/LeidenClustering.jl/dev/)
+[![CI](https://github.com/emfeltham/LeidenClustering.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/emfeltham/LeidenClustering.jl/actions/workflows/CI.yml?query=branch%3Amain)
+[![codecov](https://codecov.io/gh/emfeltham/LeidenClustering.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/emfeltham/LeidenClustering.jl)
+[![License: GPL v3+](https://img.shields.io/badge/license-GPL--3.0--or--later-blue.svg)](LICENSE)
+[![Aqua QA](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
+
 Leiden and Louvain community detection for [Graphs.jl](https://github.com/JuliaGraphs/Graphs.jl)
 graphs, in pure Julia. Both are derived from the [igraph](https://igraph.org) C implementations
 (`leiden.c`, `louvain.c`) and support weighted graphs, a resolution parameter, and the modularity
@@ -93,7 +99,7 @@ toward its vertex's strength (igraph's convention).
 ## Documentation
 
 A guide (weighted graphs, resolution, objectives, reproducibility), algorithm notes and the API
-reference live in `docs/`. Build them locally with
+reference are published at <https://emfeltham.github.io/LeidenClustering.jl/dev/> (sources in `docs/`). Build them locally with
 
 ```bash
 julia --project=docs docs/make.jl     # output in docs/build/, needs Julia 1.11+
